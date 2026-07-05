@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Play Web</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <div class="popup-logo">
+        <span class="logo-icon">&#9654;</span>
+        <h1>Mini Play Web</h1>
+      </div>
+      <span class="version">v1.0.0</span>
+    </header>
+
+    <div class="popup-status">
+      <div class="status-indicator" id="statusIndicator"></div>
+      <span id="statusText">Ready</span>
+    </div>
+
+    <div class="popup-mode">
+      <label class="mode-label">Mode:</label>
+      <div class="mode-buttons">
+        <button class="mode-btn active" data-mode="pip" title="Picture-in-Picture">
+          <span class="mode-icon">&#9634;</span>
+          PiP
+        </button>
+        <button class="mode-btn" data-mode="overlay" title="Overlay Mode">
+          <span class="mode-icon">&#9638;</span>
+          Overlay
+        </button>
+        <button class="mode-btn" data-mode="manual" title="Manual Mode">
+          <span class="mode-icon">&#9995;</span>
+          Manual
+        </button>
+      </div>
+    </div>
+
+    <div class="popup-actions">
+      <button class="action-btn primary" id="activateBtn">
+        <span class="btn-icon">&#9654;</span>
+        Activate Mini Player
+      </button>
+      <button class="action-btn secondary" id="deactivateBtn" style="display: none;">
+        <span class="btn-icon">&#9632;</span>
+        Deactivate
+      </button>
+    </div>
+
+    <div class="popup-navigation">
+      <button class="nav-btn" id="prevBtn" title="Previous Video">
+        &#9664; Prev
+      </button>
+      <button class="nav-btn" id="nextBtn" title="Next Video">
+        Next &#9654;
+      </button>
+    </div>
+
+    <footer class="popup-footer">
+      <a href="#" id="settingsLink" class="settings-link">
+        &#9881; Settings
+      </a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

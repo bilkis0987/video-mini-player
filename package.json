@@ -1,0 +1,22 @@
+{
+  "name": "mini-play-web",
+  "version": "1.0.0",
+  "description": "Browser extension untuk mini player / floating video. Video tetap visible saat pindah tab atau minimize browser.",
+  "main": "src/background.js",
+  "scripts": {
+    "generate-icons": "node src/icons/generate-icons.js"
+  },
+  "keywords": [
+    "browser-extension",
+    "mini-player",
+    "picture-in-picture",
+    "video",
+    "floating-player"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bilkis0987/video-mini-player"
+  }
+}

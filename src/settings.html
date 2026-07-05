@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Play Web - Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-container">
+    <header class="settings-header">
+      <div class="header-content">
+        <span class="logo-icon">&#9654;</span>
+        <div>
+          <h1>Mini Play Web</h1>
+          <p class="subtitle">Settings</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="settings-main">
+      <section class="settings-section">
+        <h2 class="section-title">Mode</h2>
+        <p class="section-desc">Choose how the mini player appears</p>
+        <div class="option-group">
+          <label class="option-label">Default Mode</label>
+          <select id="mode" class="option-select">
+            <option value="pip">Picture-in-Picture (Recommended)</option>
+            <option value="overlay">In-page Overlay</option>
+            <option value="manual">Manual Only</option>
+            <option value="off">Disabled</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="settings-section" id="overlaySettings">
+        <h2 class="section-title">Overlay Settings</h2>
+        <p class="section-desc">Configure the floating overlay player</p>
+        <div class="option-group">
+          <label class="option-label">Size</label>
+          <select id="overlaySize" class="option-select">
+            <option value="small">Small (200px)</option>
+            <option value="medium" selected>Medium (300px)</option>
+            <option value="large">Large (400px)</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label class="option-label">Position</label>
+          <select id="overlayPosition" class="option-select">
+            <option value="bottom-right" selected>Bottom Right</option>
+            <option value="bottom-left">Bottom Left</option>
+            <option value="top-right">Top Right</option>
+            <option value="top-left">Top Left</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Behavior</h2>
+        <p class="section-desc">Configure how the extension behaves</p>
+        <div class="option-group toggle-group">
+          <label class="option-label">Auto-activate on tab switch</label>
+          <label class="toggle">
+            <input type="checkbox" id="autoActivate" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="option-group toggle-group">
+          <label class="option-label">Show navigation buttons</label>
+          <label class="toggle">
+            <input type="checkbox" id="showNavigation" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="option-group toggle-group">
+          <label class="option-label">Show controls on hover</label>
+          <label class="toggle">
+            <input type="checkbox" id="showOnHover" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">About</h2>
+        <div class="about-info">
+          <p><strong>Mini Play Web</strong> v1.0.0</p>
+          <p>Browser extension untuk mini player / floating video.</p>
+          <p class="license">MIT License</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="settings-footer">
+      <button id="saveBtn" class="save-btn">Save Settings</button>
+      <span id="saveStatus" class="save-status"></span>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
