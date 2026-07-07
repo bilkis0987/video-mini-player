@@ -1,7 +1,6 @@
 // Background script - Tab detection and mini player activation
 // Works as service worker (Manifest V3) or background script (Manifest V2)
 // Updated: Added tab state tracking
-// State management for video tabs
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
