@@ -1,4 +1,5 @@
 // Content script - Video detection, PiP mode, and Overlay mode
+// Universal video detection for all websites
 // PiP event handlers
 // Fallback to overlay when PiP not supported
 // Overlay Mode implementation
