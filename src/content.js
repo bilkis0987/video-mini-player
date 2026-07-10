@@ -2,6 +2,7 @@
 // Universal video detection for all websites
 // MutationObserver for dynamic content
 // PiP event handlers
+// Fallback to overlay when PiP not supported
 // Smooth scroll animation
 (function() {
   'use strict';
