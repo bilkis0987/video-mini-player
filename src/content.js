@@ -1,6 +1,7 @@
 // Content script - Video detection, PiP mode, and Overlay mode
 // Universal video detection for all websites
 // MutationObserver for dynamic content
+// PiP event handlers
 // Smooth scroll animation
 (function() {
   'use strict';
