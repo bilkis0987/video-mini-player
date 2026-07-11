@@ -3,6 +3,7 @@
 // MutationObserver for dynamic content
 // PiP event handlers
 // Fallback to overlay when PiP not supported
+// Overlay Mode implementation
 // Smooth scroll animation
 (function() {
   'use strict';
