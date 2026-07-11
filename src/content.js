@@ -4,6 +4,8 @@
 // PiP event handlers
 // Fallback to overlay when PiP not supported
 // Overlay Mode implementation
+// Draggable header
+// Resizable handle
 // Smooth scroll animation
 (function() {
   'use strict';
