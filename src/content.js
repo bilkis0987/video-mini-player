@@ -7,6 +7,7 @@
 // Draggable header
 // Resizable handle
 // Navigation controls (Next/Prev)
+// Scroll navigation implementation
 // Smooth scroll animation
 (function() {
   'use strict';
