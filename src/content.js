@@ -6,6 +6,7 @@
 // Overlay Mode implementation
 // Draggable header
 // Resizable handle
+// Navigation controls (Next/Prev)
 // Smooth scroll animation
 (function() {
   'use strict';
