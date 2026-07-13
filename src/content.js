@@ -9,6 +9,7 @@
 // Navigation controls (Next/Prev)
 // Scroll navigation implementation
 // Smooth scroll animation
+// Message handling
 (function() {
   'use strict';
 
