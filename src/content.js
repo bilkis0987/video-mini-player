@@ -10,6 +10,7 @@
 // Scroll navigation implementation
 // Smooth scroll animation
 // Message handling
+// Initialize
 (function() {
   'use strict';
 
