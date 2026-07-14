@@ -1,6 +1,4 @@
 // Mini Play Web - Popup Script
-// Quick controls for mini player
-// Mode selection (PiP/Overlay/Manual)
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
