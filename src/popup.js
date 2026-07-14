@@ -1,4 +1,5 @@
 // Mini Play Web - Popup Script
+// Quick controls for mini player
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
