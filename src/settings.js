@@ -1,6 +1,4 @@
 // Mini Play Web - Settings Script
-// Configuration page for extension
-// Save/load settings from storage
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
