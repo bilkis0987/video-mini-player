@@ -2,6 +2,8 @@
 
 Browser extension untuk memutar video dalam mode mini player / floating window. Video tetap visible saat pindah tab atau minimize browser.
 
+## Installation
+
 ![Logo](logo-mini-play-web.png)
 
 ## Features
