@@ -1,8 +1,6 @@
 // Content script - Video detection, PiP mode, and Overlay mode
 // Universal video detection for all websites
 // MutationObserver for dynamic content
-// Video state tracking for PiP and overlay modes
-// Picture-in-Picture implementation
 // PiP event handlers
 // Fallback to overlay when PiP not supported
 // Overlay Mode implementation
@@ -11,6 +9,8 @@
 // Navigation controls (Next/Prev)
 // Scroll navigation implementation
 // Smooth scroll animation
+// Message handling
+// Initialize
 (function() {
   'use strict';
 
