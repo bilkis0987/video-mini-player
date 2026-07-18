@@ -18,5 +18,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/bilkis0987/video-mini-player"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
   }
 }
