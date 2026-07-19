@@ -358,7 +358,7 @@
   // Message handling
   api.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
-      case 'SHOW_MINI_PLAYER':
+      case 'SHOW_MINI_PLAYER': {
         settings = message.settings || settings;
         const video = getMainVideo();
         if (video) {
@@ -367,6 +367,7 @@
         }
         sendResponse({ success: true });
         break;
+      }
 
       case 'HIDE_MINI_PLAYER':
         deactivateOverlay();
