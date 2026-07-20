@@ -4,7 +4,7 @@
   "description": "Browser extension untuk mini player / floating video. Video tetap visible saat pindah tab atau minimize browser.",
   "main": "src/background.js",
   "scripts": {
-    "generate-icons": "node src/icons/generate-icons.js"
+    "generate-icons": "node generate-icons.js"
   },
   "keywords": [
     "browser-extension",
