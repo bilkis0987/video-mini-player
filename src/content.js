@@ -34,57 +34,70 @@
 
   // Find all video elements on page
   function findVideos() {
-    const videos = Array.from(document.querySelectorAll('video'));
-    return videos.filter(v => v.src || v.querySelector('source'));
+    try {
+      const videos = Array.from(document.querySelectorAll('video'));
+      return videos.filter(v => {
+        try {
+          return (v.src || v.querySelector('source')) && v.readyState >= 0;
+        } catch { return false; }
+      });
+    } catch { return []; }
   }
 
   // Get the main/playing video
   function getMainVideo() {
-    const videos = findVideos();
-    if (videos.length === 0) return null;
+    try {
+      const videos = findVideos();
+      if (videos.length === 0) return null;
 
-    const playing = videos.find(v => !v.paused && !v.ended);
-    if (playing) return playing;
+      const playing = videos.find(v => !v.paused && !v.ended);
+      if (playing) return playing;
 
-    return videos.reduce((largest, v) => {
-      const area = v.clientWidth * v.clientHeight;
-      const largestArea = largest.clientWidth * largest.clientHeight;
-      return area > largestArea ? v : largest;
-    });
+      return videos.reduce((largest, v) => {
+        if (!largest) return v;
+        const area = v.clientWidth * v.clientHeight;
+        const largestArea = largest.clientWidth * largest.clientHeight;
+        return area > largestArea ? v : largest;
+      }, null);
+    } catch { return null; }
   }
 
   // Report video state to background
   function reportVideoState(video) {
-    if (!video) {
+    try {
+      if (!video) {
+        api.runtime.sendMessage({
+          type: 'VIDEO_STATE_CHANGED',
+          hasVideo: false,
+          isPlaying: false,
+          videoSrc: null
+        }).catch(() => {});
+        return;
+      }
+
       api.runtime.sendMessage({
         type: 'VIDEO_STATE_CHANGED',
-        hasVideo: false,
-        isPlaying: false,
-        videoSrc: null
-      });
-      return;
-    }
-
-    api.runtime.sendMessage({
-      type: 'VIDEO_STATE_CHANGED',
-      hasVideo: true,
-      isPlaying: !video.paused,
-      videoSrc: video.src
-    });
+        hasVideo: true,
+        isPlaying: !video.paused,
+        videoSrc: video.src
+      }).catch(() => {});
+    } catch {}
   }
 
   // MutationObserver for dynamic content
   const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.addedNodes.length) {
-        const video = getMainVideo();
-        if (video && video !== currentVideo) {
-          currentVideo = video;
-          setupVideoListeners(video);
-          reportVideoState(video);
+    try {
+      for (const mutation of mutations) {
+        if (mutation.addedNodes.length) {
+          const video = getMainVideo();
+          if (video && video !== currentVideo) {
+            currentVideo = video;
+            setupVideoListeners(video);
+            reportVideoState(video);
+          }
         }
       }
-    }
+    } catch {}
   });
 
   observer.observe(document.body, {
@@ -431,12 +444,14 @@
 
   // Initialize
   function init() {
-    const video = getMainVideo();
-    if (video) {
-      currentVideo = video;
-      setupVideoListeners(video);
-      reportVideoState(video);
-    }
+    try {
+      const video = getMainVideo();
+      if (video) {
+        currentVideo = video;
+        setupVideoListeners(video);
+        reportVideoState(video);
+      }
+    } catch {}
     console.log('Mini Play Web: Content script loaded');
   }
 
