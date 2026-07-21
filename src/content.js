@@ -29,6 +29,8 @@
   let currentVideo = null;
   let overlayElement = null;
   let isPiPActive = false;
+  let syncRafId = null;
+  let visibilityHandler = null;
 
   // Find all video elements on page
   function findVideos() {
@@ -166,6 +168,15 @@
     overlayElement.style.display = 'none';
     miniPlayerActive = false;
 
+    if (visibilityHandler) {
+      document.removeEventListener('visibilitychange', visibilityHandler);
+      visibilityHandler = null;
+    }
+    if (syncRafId) {
+      cancelAnimationFrame(syncRafId);
+      syncRafId = null;
+    }
+
     const overlayVideo = overlayElement.querySelector('video');
     if (overlayVideo) {
       overlayVideo.src = '';
@@ -220,15 +231,34 @@
       overlayVideo.play().catch(() => {});
     }
 
+    if (visibilityHandler) {
+      document.removeEventListener('visibilitychange', visibilityHandler);
+      visibilityHandler = null;
+    }
+    if (syncRafId) {
+      cancelAnimationFrame(syncRafId);
+      syncRafId = null;
+    }
+
     const syncPlayback = () => {
-      if (!miniPlayerActive || settings.mode !== 'overlay') return;
+      if (!miniPlayerActive || settings.mode !== 'overlay' || document.hidden) {
+        syncRafId = null;
+        return;
+      }
       if (Math.abs(overlayVideo.currentTime - sourceVideo.currentTime) > 0.5) {
         overlayVideo.currentTime = sourceVideo.currentTime;
       }
-      requestAnimationFrame(syncPlayback);
+      syncRafId = requestAnimationFrame(syncPlayback);
     };
 
-    requestAnimationFrame(syncPlayback);
+    visibilityHandler = () => {
+      if (!document.hidden && miniPlayerActive && settings.mode === 'overlay' && !syncRafId) {
+        syncRafId = requestAnimationFrame(syncPlayback);
+      }
+    };
+
+    document.addEventListener('visibilitychange', visibilityHandler);
+    syncRafId = requestAnimationFrame(syncPlayback);
   }
 
   function positionOverlay() {
