@@ -143,6 +143,9 @@ api.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'loading') {
     delete state.videoTabs[tabId];
   }
+  if (changeInfo.status === 'complete' && state.videoTabs[tabId]) {
+    delete state.videoTabs[tabId];
+  }
 });
 
 // Tab removed - clean up
