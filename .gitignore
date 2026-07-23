@@ -6,3 +6,5 @@ dist/
 .env
 *.crx
 *.xpi
+.mimocode/
+.opencode/
