@@ -1,6 +1,4 @@
 // Mini Play Web - Popup Script
-// Quick controls for mini player
-
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,7 +12,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const settingsLink = document.getElementById('settingsLink');
 
   let currentMode = 'pip';
-  let isActive = false;
+
+  async function getActiveTab() {
+    const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+    return tab;
+  }
+
+  async function sendToTab(message) {
+    const tab = await getActiveTab();
+    if (!tab) return null;
+    try {
+      return await api.tabs.sendMessage(tab.id, message);
+    } catch (e) {
+      console.log('sendToTab error:', e.message);
+      return null;
+    }
+  }
 
   async function loadSettings() {
     try {
@@ -24,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateModeUI(currentMode);
       }
     } catch (e) {
-      console.log('Failed to load settings:', e);
+      console.log('loadSettings error:', e);
     }
   }
 
@@ -34,50 +47,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  function updateStatus(active) {
-    isActive = active;
-    statusIndicator.className = 'status-indicator ' + (active ? 'active' : 'inactive');
-    statusText.textContent = active ? 'Mini Player Active' : 'Ready';
-    activateBtn.style.display = active ? 'none' : 'flex';
-    deactivateBtn.style.display = active ? 'flex' : 'none';
-  }
-
   modeButtons.forEach((btn) => {
     btn.addEventListener('click', async () => {
       const mode = btn.dataset.mode;
       currentMode = mode;
       updateModeUI(mode);
-      await api.runtime.sendMessage({
-        type: 'UPDATE_SETTINGS',
-        settings: { mode }
-      });
+      await api.runtime.sendMessage({ type: 'UPDATE_SETTINGS', settings: { mode } });
     });
   });
 
   activateBtn.addEventListener('click', async () => {
-    try {
-      await api.runtime.sendMessage({ type: 'ACTIVATE_MINI_PLAYER' });
-      updateStatus(true);
-    } catch (e) {
-      console.log('Failed to activate:', e);
-    }
+    await sendToTab({ type: 'SHOW_MINI_PLAYER', settings: { mode: currentMode } });
   });
 
   deactivateBtn.addEventListener('click', async () => {
-    try {
-      await api.runtime.sendMessage({ type: 'DEACTIVATE_MINI_PLAYER' });
-      updateStatus(false);
-    } catch (e) {
-      console.log('Failed to deactivate:', e);
-    }
+    await sendToTab({ type: 'HIDE_MINI_PLAYER' });
   });
 
   prevBtn.addEventListener('click', async () => {
-    await api.runtime.sendMessage({ type: 'NAVIGATE_PREV' });
+    await sendToTab({ type: 'SCROLL_PREV' });
   });
 
   nextBtn.addEventListener('click', async () => {
-    await api.runtime.sendMessage({ type: 'NAVIGATE_NEXT' });
+    await sendToTab({ type: 'SCROLL_NEXT' });
   });
 
   settingsLink.addEventListener('click', (e) => {
@@ -86,5 +78,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   await loadSettings();
-  updateStatus(false);
 });
