@@ -90,35 +90,20 @@
     }
   }
 
+  // Safe wrapper for runtime.sendMessage
+  function safeSendMessage(msg) {
+    try {
+      api.runtime.sendMessage(msg).catch(() => {});
+    } catch {}
+  }
+
   // Report video state to background
   function reportVideoState(video) {
-    try {
-      if (!video) {
-        log('reportVideoState: no video, reporting empty');
-        api.runtime.sendMessage({
-          type: 'VIDEO_STATE_CHANGED',
-          hasVideo: false,
-          isPlaying: false,
-          videoSrc: null
-        }).catch(e => logError('sendMessage failed:', e));
-        return;
-      }
-
-      const state = {
-        hasVideo: true,
-        isPlaying: !video.paused,
-        videoSrc: video.src?.substring(0, 80)
-      };
-      log('reportVideoState:', state);
-      api.runtime.sendMessage({
-        type: 'VIDEO_STATE_CHANGED',
-        hasVideo: true,
-        isPlaying: !video.paused,
-        videoSrc: video.src
-      }).catch(e => logError('sendMessage failed:', e));
-    } catch (e) {
-      logError('reportVideoState error:', e);
+    if (!video) {
+      safeSendMessage({ type: 'VIDEO_STATE_CHANGED', hasVideo: false, isPlaying: false, videoSrc: null });
+      return;
     }
+    safeSendMessage({ type: 'VIDEO_STATE_CHANGED', hasVideo: true, isPlaying: !video.paused, videoSrc: video.src });
   }
 
   // MutationObserver for dynamic content
@@ -434,7 +419,7 @@
       log('overlay: close button clicked');
       deactivateOverlay();
       deactivatePiP();
-      api.runtime.sendMessage({ type: 'DEACTIVATE_MINI_PLAYER' });
+      safeSendMessage({ type: 'DEACTIVATE_MINI_PLAYER' });
     });
 
     overlay.querySelector('.mini-player-pip').addEventListener('click', async () => {
@@ -454,8 +439,8 @@
     if (settings.showNavigation) {
       const prevBtn = overlay.querySelector('.mini-player-prev');
       const nextBtn = overlay.querySelector('.mini-player-next');
-      if (prevBtn) prevBtn.addEventListener('click', () => api.runtime.sendMessage({ type: 'NAVIGATE_PREV' }));
-      if (nextBtn) nextBtn.addEventListener('click', () => api.runtime.sendMessage({ type: 'NAVIGATE_NEXT' }));
+      if (prevBtn) prevBtn.addEventListener('click', () => safeSendMessage({ type: 'NAVIGATE_PREV' }));
+      if (nextBtn) nextBtn.addEventListener('click', () => safeSendMessage({ type: 'NAVIGATE_NEXT' }));
     }
 
     const resizeHandle = overlay.querySelector('.mini-player-resize-handle');
