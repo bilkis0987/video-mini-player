@@ -34,8 +34,16 @@ api.tabs.onActivated.addListener(async (activeInfo) => {
     lastActiveTabId = activeInfo.tabId;
 
     if (autoActivate && prevTabId && prevTabId !== activeInfo.tabId) {
-      log('auto-activate: sending to tab', prevTabId);
-      api.tabs.sendMessage(prevTabId, { type: 'SHOW_MINI_PLAYER' }).catch(() => {});
+      log('auto-activate: scripting on tab', prevTabId);
+      api.scripting.executeScript({
+        target: { tabId: prevTabId },
+        func: () => {
+          const video = document.querySelector('video');
+          if (!video) return;
+          if (document.pictureInPictureElement) return;
+          video.requestPictureInPicture().catch(() => {});
+        }
+      }).catch(() => {});
     }
   } catch {}
 });
