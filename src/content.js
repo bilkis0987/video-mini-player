@@ -99,11 +99,17 @@
 
   // Report video state to background
   function reportVideoState(video) {
-    if (!video) {
-      safeSendMessage({ type: 'VIDEO_STATE_CHANGED', hasVideo: false, isPlaying: false, videoSrc: null });
-      return;
-    }
-    safeSendMessage({ type: 'VIDEO_STATE_CHANGED', hasVideo: true, isPlaying: !video.paused, videoSrc: video.src });
+    try {
+      if (!video) {
+        safeSendMessage({ type: 'VIDEO_STATE_CHANGED', hasVideo: false, isPlaying: false, videoSrc: null });
+        return;
+      }
+      let isPlaying = false;
+      let videoSrc = null;
+      try { isPlaying = !video.paused; } catch {}
+      try { videoSrc = video.src || null; } catch {}
+      safeSendMessage({ type: 'VIDEO_STATE_CHANGED', hasVideo: true, isPlaying, videoSrc });
+    } catch {}
   }
 
   // MutationObserver for dynamic content
@@ -142,32 +148,21 @@
       return;
     }
     video._miniPlayerSetup = true;
-    log('setupVideoListeners: attaching to', video.src?.substring(0, 80));
 
-    video.addEventListener('play', () => {
-      log('video event: play', video.src?.substring(0, 80));
-      reportVideoState(video);
-    });
-    video.addEventListener('pause', () => {
-      log('video event: pause', video.src?.substring(0, 80));
-      reportVideoState(video);
-    });
-    video.addEventListener('ended', () => {
-      log('video event: ended', video.src?.substring(0, 80));
-      reportVideoState(video);
-    });
+    video.addEventListener('play', () => reportVideoState(video));
+    video.addEventListener('pause', () => reportVideoState(video));
+    video.addEventListener('ended', () => reportVideoState(video));
 
     video.addEventListener('loadeddata', () => {
-      log('video event: loadeddata', video.src?.substring(0, 80));
-      if (video !== currentVideo) {
-        currentVideo = video;
-        reportVideoState(video);
-
-        if (miniPlayerActive && settings.mode === 'overlay' && overlayElement) {
-          log('loadeddata: syncing overlay with new video');
-          syncOverlayVideo(video);
+      try {
+        if (video !== currentVideo) {
+          currentVideo = video;
+          reportVideoState(video);
+          if (miniPlayerActive && settings.mode === 'overlay' && overlayElement) {
+            syncOverlayVideo(video);
+          }
         }
-      }
+      } catch {}
     });
   }
 
