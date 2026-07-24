@@ -1,148 +1,55 @@
-// Background script - Tab detection and mini player activation
-// Manifest V3 service worker
-
 const api = typeof browser !== 'undefined' ? browser : chrome;
 const LOG = '[MiniPlay-bg]';
-
 function log(...args) { console.log(LOG, ...args); }
-function logErr(...args) { console.error(LOG, ...args); }
 
-const state = {
-  lastActiveTabId: null,
-  settings: {
-    mode: 'pip',
-    overlaySize: 'medium',
-    overlayPosition: 'bottom-right',
-    showNavigation: true,
-    autoActivate: true,
-    showOnHover: true
-  }
-};
+let autoActivate = true;
+let lastActiveTabId = null;
 
 async function loadSettings() {
   try {
-    const result = await api.storage.local.get('settings');
-    if (result.settings) {
-      state.settings = { ...state.settings, ...result.settings };
-    }
-  } catch (e) {
-    logErr('loadSettings:', e);
-  }
+    const result = await api.storage.local.get('autoActivate');
+    if (result.autoActivate !== undefined) autoActivate = result.autoActivate;
+  } catch {}
 }
 
 // Handle messages
 api.runtime.onMessage.addListener((message, sender, sendResponse) => {
   try {
-    const tabId = sender.tab?.id;
-    log('msg:', message.type, 'tab:', tabId);
-
-    switch (message.type) {
-      case 'GET_SETTINGS':
-        sendResponse({ settings: state.settings });
-        break;
-
-      case 'UPDATE_SETTINGS':
-        state.settings = { ...state.settings, ...message.settings };
-        api.storage.local.set({ settings: state.settings });
-        api.tabs.query({}, (tabs) => {
-          for (const tab of tabs) {
-            if (tab.id) {
-              api.tabs.sendMessage(tab.id, {
-                type: 'SETTINGS_UPDATED',
-                settings: state.settings
-              }).catch(() => {});
-            }
-          }
-        });
-        sendResponse({ success: true });
-        break;
-
-      case 'SHOW_MINI_PLAYER':
-        if (tabId) {
-          api.tabs.sendMessage(tabId, {
-            type: 'SHOW_MINI_PLAYER',
-            settings: state.settings
-          }).catch(() => {});
-        }
-        sendResponse({ success: true });
-        break;
-
-      case 'HIDE_MINI_PLAYER':
-        if (tabId) {
-          api.tabs.sendMessage(tabId, { type: 'HIDE_MINI_PLAYER' })
-            .catch(() => {});
-        }
-        sendResponse({ success: true });
-        break;
-
-      case 'NAVIGATE_NEXT':
-      case 'NAVIGATE_PREV':
-        if (tabId) {
-          api.tabs.sendMessage(tabId, { type: message.type })
-            .catch(() => {});
-        }
-        sendResponse({ success: true });
-        break;
-
-      case 'VIDEO_STATE_CHANGED':
-        sendResponse({ success: true });
-        break;
-
-      case 'DEACTIVATE_MINI_PLAYER':
-        sendResponse({ success: true });
-        break;
+    if (message.type === 'UPDATE_AUTO_ACTIVATE') {
+      autoActivate = message.autoActivate;
+      sendResponse({ success: true });
     }
-  } catch (e) {
-    console.error('[MiniPlay-bg] msg error:', e);
-  }
+    if (message.type === 'VIDEO_STATE_CHANGED') {
+      sendResponse({ success: true });
+    }
+  } catch {}
   return true;
 });
 
-// Tab activated - key logic for auto-activate
+// Tab activated - auto-activate PiP on previous tab
 api.tabs.onActivated.addListener(async (activeInfo) => {
   try {
-    log('tab activated:', activeInfo.tabId, 'prev:', state.lastActiveTabId);
-
     await loadSettings();
+    const prevTabId = lastActiveTabId;
+    lastActiveTabId = activeInfo.tabId;
 
-    const prevTabId = state.lastActiveTabId;
-    state.lastActiveTabId = activeInfo.tabId;
-
-    if (state.settings.autoActivate && state.settings.mode !== 'off' && prevTabId && prevTabId !== activeInfo.tabId) {
-      log('sending SHOW_MINI_PLAYER to previous tab', prevTabId);
-      api.tabs.sendMessage(prevTabId, {
-        type: 'SHOW_MINI_PLAYER',
-        settings: state.settings
-      }).catch(() => {});
+    if (autoActivate && prevTabId && prevTabId !== activeInfo.tabId) {
+      log('auto-activate: sending to tab', prevTabId);
+      api.tabs.sendMessage(prevTabId, { type: 'SHOW_MINI_PLAYER' }).catch(() => {});
     }
-  } catch (e) {
-    console.error('[MiniPlay-bg] onActivated error:', e);
+  } catch {}
+});
+
+// Clear tab tracking on navigation
+api.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === 'loading' && lastActiveTabId === tabId) {
+    lastActiveTabId = null;
   }
 });
 
-// Track tab updates
-api.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  try {
-    if (changeInfo.status === 'loading') {
-      if (state.lastActiveTabId === tabId) {
-        state.lastActiveTabId = null;
-      }
-    }
-  } catch {}
-});
-
 api.tabs.onRemoved.addListener((tabId) => {
-  try {
-    if (state.lastActiveTabId === tabId) {
-      state.lastActiveTabId = null;
-    }
-  } catch {}
+  if (lastActiveTabId === tabId) lastActiveTabId = null;
 });
 
-// Initialize
-try {
-  loadSettings();
-  log('Background script loaded');
-} catch (e) {
-  console.error('[MiniPlay-bg] init failed:', e);
-}
+loadSettings();
+log('Background loaded');

@@ -1,12 +1,18 @@
-// Mini Play Web - Popup Script (PiP-only)
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const statusIndicator = document.getElementById('statusIndicator');
-  const statusText = document.getElementById('statusText');
-  const activateBtn = document.getElementById('activateBtn');
+  const toggleBtn = document.getElementById('togglePiP');
+  const autoActivate = document.getElementById('autoActivate');
+  const status = document.getElementById('status');
 
-  activateBtn.addEventListener('click', async () => {
+  // Load auto-activate setting
+  try {
+    const result = await api.storage.local.get('autoActivate');
+    autoActivate.checked = result.autoActivate !== false;
+  } catch {}
+
+  // Toggle PiP
+  toggleBtn.addEventListener('click', async () => {
     const [tab] = await api.tabs.query({ active: true, currentWindow: true });
     if (!tab) return;
 
@@ -15,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         target: { tabId: tab.id },
         func: () => {
           const video = document.querySelector('video');
-          if (!video) return { ok: false, reason: 'no video' };
+          if (!video) return { ok: false, reason: 'No video found' };
           if (document.pictureInPictureElement) {
             document.exitPictureInPicture();
             return { ok: true, action: 'exited' };
@@ -26,16 +32,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
 
-      if (result?.result?.ok) {
-        statusText.textContent = result.result.action === 'entered' ? 'PiP Active' : 'PiP Off';
-        statusIndicator.classList.add('active');
+      const res = result?.result;
+      if (res?.ok) {
+        status.textContent = res.action === 'entered' ? 'PiP Active' : 'PiP Off';
+        status.className = 'status' + (res.action === 'entered' ? ' active' : '');
       } else {
-        statusText.textContent = result?.result?.reason || 'No video found';
-        statusIndicator.classList.remove('active');
+        status.textContent = res?.reason || 'No video';
+        status.className = 'status';
       }
     } catch (e) {
-      statusText.textContent = 'Error: ' + e.message;
-      statusIndicator.classList.remove('active');
+      status.textContent = 'Error: ' + e.message;
+      status.className = 'status';
     }
+  });
+
+  // Auto-activate toggle
+  autoActivate.addEventListener('change', async () => {
+    try {
+      await api.storage.local.set({ autoActivate: autoActivate.checked });
+      // Notify background
+      api.runtime.sendMessage({
+        type: 'UPDATE_AUTO_ACTIVATE',
+        autoActivate: autoActivate.checked
+      }).catch(() => {});
+    } catch {}
   });
 });
