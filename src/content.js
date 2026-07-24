@@ -43,7 +43,6 @@
   let isPiPActive = false;
   let syncRafId = null;
   let visibilityHandler = null;
-  let pipVisibilityHandler = null;
 
   // Find all video elements on page
   function findVideos() {
@@ -218,19 +217,7 @@
         log('PiP: left picture-in-picture');
         isPiPActive = false;
         miniPlayerActive = false;
-        if (pipVisibilityHandler) {
-          document.removeEventListener('visibilitychange', pipVisibilityHandler);
-          pipVisibilityHandler = null;
-        }
       }, { once: true });
-
-      pipVisibilityHandler = () => {
-        if (document.hidden && isPiPActive) {
-          log('PiP: browser minimized/hidden, exiting PiP');
-          deactivatePiP();
-        }
-      };
-      document.addEventListener('visibilitychange', pipVisibilityHandler);
 
       log('activatePiP: SUCCESS');
     } catch (e) {
@@ -245,10 +232,6 @@
     document.exitPictureInPicture().catch(e => logError('exitPiP failed:', e));
     isPiPActive = false;
     miniPlayerActive = false;
-    if (pipVisibilityHandler) {
-      document.removeEventListener('visibilitychange', pipVisibilityHandler);
-      pipVisibilityHandler = null;
-    }
   }
 
   // Overlay Mode
